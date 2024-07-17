@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
-import { assets, songsData } from "../assets/frontend-assets/assets";
-import { PlayerContext } from "../context/PlayerContext";
+import { useContext } from "react";
+import { assets } from "../assets/frontend-assets/assets";
+import { PlayerContext, PlayerContextType } from "../context/PlayerContext";
 
 const Player = () => {
   const {
@@ -14,7 +14,7 @@ const Player = () => {
     previous,
     next,
     seekSong,
-  } = useContext(PlayerContext);
+  } = useContext(PlayerContext) as PlayerContextType;
 
   return track ? (
     <div className="h-[10%] bg-black flex justify-between items-center text-white px-4 ">

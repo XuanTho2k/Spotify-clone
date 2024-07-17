@@ -4,4 +4,6 @@ export interface ISong {
   image: string;
   duration: string;
   album: string;
+  desc: string;
+  file: string;
 }

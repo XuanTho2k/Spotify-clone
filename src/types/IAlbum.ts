@@ -3,4 +3,5 @@ export interface IAlbum {
   name: string;
   image: string;
   desc: string;
+  bgColour: string;
 }

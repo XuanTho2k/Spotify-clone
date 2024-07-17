@@ -1,24 +1,68 @@
 import {
   createContext,
-  SyntheticEvent,
+  Dispatch,
+  SetStateAction,
   useEffect,
   useRef,
   useState,
 } from "react";
 import instance from "../config/axios";
-import axios from "axios";
+import { ISong } from "../types/ISong";
+import { IAlbum } from "../types/IAlbum";
 
-export const PlayerContext = createContext({});
+export interface PlayerContextType {
+  audioRef: React.RefObject<HTMLAudioElement>;
+  seekBg: React.RefObject<HTMLDivElement>;
+  seekBar: React.RefObject<HTMLHRElement>;
+  songsData: ISong[];
+  albumsData: IAlbum[];
+  track: ISong;
+  setTrack: Dispatch<SetStateAction<ISong>>;
+  play: () => void;
+  previous: () => void;
+  next: () => void;
+  playStatus: boolean;
+  setPlayStatus: Dispatch<SetStateAction<boolean>>;
+  time: {
+    currentTime: {
+      second: number;
+      minute: number;
+    };
+    totalTime: {
+      second: number;
+      minute: number;
+    };
+  };
+  setTime: Dispatch<
+    SetStateAction<{
+      currentTime: {
+        second: number;
+        minute: number;
+      };
+      totalTime: {
+        second: number;
+        minute: number;
+      };
+    }>
+  >;
+  seekSong: (e: React.MouseEvent<HTMLDivElement>) => void;
+  pause: () => void;
+  playWithId: (id: string) => void;
+}
 
-const PlayerContextProvider = (props: {}) => {
-  const audioRef = useRef<HTMLAudioElement>();
-  const seekBg = useRef();
-  const seekBar = useRef();
+export const PlayerContext = createContext<PlayerContextType | undefined>(
+  undefined
+);
+
+const PlayerContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const seekBg = useRef<HTMLDivElement | null>(null);
+  const seekBar = useRef<HTMLHRElement | null>(null);
 
   const [songsData, setSongsData] = useState([]);
   const [albumsData, setAlbumsData] = useState([]);
 
-  const [track, setTrack] = useState(songsData[0]);
+  const [track, setTrack] = useState<ISong>(songsData[0]);
   const [playStatus, setPlayStatus] = useState(false);
 
   const [time, setTime] = useState({
@@ -45,40 +89,42 @@ const PlayerContextProvider = (props: {}) => {
   };
 
   // play song by id
-  const playWithId = async (id: number) => {
-    await songsData.map((item) => {
+  const playWithId = async (id: string) => {
+    await songsData.map((item: ISong) => {
       if (id === item._id) {
         setTrack(item);
       }
     });
 
-    await audioRef.current.play();
+    await audioRef.current?.play();
     setPlayStatus(true);
   };
 
   // play previous song
   const previous = async () => {
-    songsData.map(async (item, idx) => {
+    songsData.map(async (item: ISong, index) => {
       if (track._id === item._id && index > 0) {
         await setTrack(songsData[index - 1]);
-        await audioRef.current.play();
+        await audioRef.current?.play();
         setPlayStatus(true);
       }
     });
   };
 
   // play at a percent
-  const seekSong = async (e: SyntheticEvent) => {
-    audioRef.current!.currentTime =
-      (e.nativeEvent.offsetX / seekBg.current?.offsetWidth) *
-      audioRef.current!.duration;
+  const seekSong = async (e: React.MouseEvent<HTMLDivElement>) => {
+    if (seekBg.current) {
+      audioRef.current!.currentTime =
+        (e.nativeEvent.offsetX / seekBg.current.offsetWidth) *
+        audioRef.current!.duration;
+    }
   };
   // play next song
   const next = async () => {
-    songsData.map(async (item, idx) => {
+    songsData.map(async (item: ISong, index) => {
       if (track._id === item._id && index < songsData.length) {
         await setTrack(songsData[index + 1]);
-        await audioRef.current.play();
+        await audioRef.current?.play();
         setPlayStatus(true);
       }
     });
@@ -89,7 +135,9 @@ const PlayerContextProvider = (props: {}) => {
       const response = await instance.get("/songs/list");
       setSongsData(response.data.songs);
       setTrack(response.data.songs[0]);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   //get album data
@@ -97,7 +145,9 @@ const PlayerContextProvider = (props: {}) => {
     try {
       const response = await instance.get("/albums/list");
       setAlbumsData(response.data.albums);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   useEffect(() => {
     getSongsData();
@@ -106,22 +156,26 @@ const PlayerContextProvider = (props: {}) => {
 
   useEffect(() => {
     setTimeout(() => {
-      audioRef.current.ontimeupdate = () => {
-        seekBar.current.style.width =
-          Math.floor(
-            (audioRef.current.currentTime / audioRef.current.duration) * 100
-          ) + "%";
-        setTime({
-          currentTime: {
-            second: Math.floor(audioRef.current.currentTime % 60),
-            minute: Math.floor(audioRef.current.currentTime / 60),
-          },
-          totalTime: {
-            second: Math.floor(audioRef.current.duration % 60),
-            minute: Math.floor(audioRef.current.duration / 60),
-          },
-        });
-      };
+      if (audioRef.current && seekBar.current) {
+        audioRef.current.ontimeupdate = () => {
+          if (seekBar.current && audioRef.current)
+            seekBar.current.style.width =
+              Math.floor(
+                (audioRef.current.currentTime / audioRef.current.duration) * 100
+              ) + "%";
+          if (audioRef.current)
+            setTime({
+              currentTime: {
+                second: Math.floor(audioRef.current.currentTime % 60),
+                minute: Math.floor(audioRef.current.currentTime / 60),
+              },
+              totalTime: {
+                second: Math.floor(audioRef.current.duration % 60),
+                minute: Math.floor(audioRef.current.duration / 60),
+              },
+            });
+        };
+      }
     }, 1000);
   }, [audioRef]);
 
@@ -147,7 +201,7 @@ const PlayerContextProvider = (props: {}) => {
 
   return (
     <PlayerContext.Provider value={contextValue}>
-      {props.children}
+      {children}
     </PlayerContext.Provider>
   );
 };

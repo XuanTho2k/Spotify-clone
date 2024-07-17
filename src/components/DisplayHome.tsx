@@ -1,12 +1,13 @@
-import React, { useContext } from "react";
-import Display from "./Display";
+import { useContext } from "react";
 import Navbar from "./Navbar";
 import AlbumItem from "./AlbumItem";
 import SongItem from "./SongItem";
-import { PlayerContext } from "../context/PlayerContext";
+import { PlayerContext, PlayerContextType } from "../context/PlayerContext";
 
 const DisplayHome = () => {
-  const { songsData, albumsData } = useContext(PlayerContext);
+  const { songsData, albumsData } = useContext(
+    PlayerContext
+  ) as PlayerContextType;
   return (
     <>
       <Navbar />

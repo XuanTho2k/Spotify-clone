@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { PlayerContext } from "../context/PlayerContext";
+import { useContext } from "react";
+import { PlayerContext, PlayerContextType } from "../context/PlayerContext";
 
 const SongItem = ({
   name,
@@ -10,9 +10,9 @@ const SongItem = ({
   name: string;
   image: string;
   desc: string;
-  id: number;
+  id: string;
 }) => {
-  const { playWithId } = useContext(PlayerContext);
+  const { playWithId } = useContext(PlayerContext) as PlayerContextType;
   return (
     <div
       onClick={() => playWithId(id)}
