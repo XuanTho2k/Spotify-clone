@@ -25,7 +25,6 @@ const AddSong = () => {
       if (image) formData.append("image", image);
       if (song) formData.append("audio", song);
       formData.append("album", album);
-      console.log(name, desc, image, song, album);
 
       const response = await instance.post(`/songs/add`, formData);
       if (response.data.success) {
@@ -77,7 +76,7 @@ const AddSong = () => {
           <input
             onChange={(e) => {
               if (e.target.files && e.target.files.length > 0)
-                setImage(e.target.files[0]);
+                setSong(e.target.files[0]);
             }}
             id="song"
             type="file"
