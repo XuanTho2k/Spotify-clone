@@ -6,6 +6,7 @@ export class AlbumController {
     try {
       const { name, desc, bgColour } = req.body;
       const imageFile = req.file;
+
       const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
         resource_type: "image",
       });

@@ -44,7 +44,6 @@ export class SongController {
   static removeSong = async (req, res) => {
     try {
       await songModel.findByIdAndDelete(req.body.id);
-      console.log(req.body.id);
       res.json({ success: true, message: "Song removed!" });
     } catch (error) {
       res.json({ success: false });
