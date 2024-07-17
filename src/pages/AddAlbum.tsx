@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { assets } from "../assets/assets";
-import instance from "../config/axios";
 import { toast } from "react-toastify";
+import instance from "../config/axios";
 
 const AddAlbum = () => {
   const [image, setImage] = useState<File | null>(null);
