@@ -17,7 +17,6 @@ const Display = () => {
       ? albumsData.find((item: IAlbum) => item._id == albumId)?.bgColour
       : "#121212";
 
-  console.log(bgColor);
   useEffect(() => {
     if (displayRef.current) {
       if (isAlbum) {
@@ -26,7 +25,7 @@ const Display = () => {
         displayRef.current.style.background = `linear-gradient(#121212)`;
       }
     }
-  });
+  }, []);
   return (
     <div
       ref={displayRef}
