@@ -1,17 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Navbar from "./Navbar";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { PlayerContext } from "../context/PlayerContext";
 import { assets } from "../assets/frontend-assets/assets";
+import { IAlbum } from "../types/IAlbum";
+import { ISong } from "../types/ISong";
 
-const DisplayAlbum = ({ albums }) => {
+const DisplayAlbum = ({ albums }: { albums: IAlbum }) => {
   const { id } = useParams();
-  const [albumData, setAlbumData] = useState("");
+  const [albumData, setAlbumData] = useState<IAlbum>();
   const { playWithId, albumsData, songsData } = useContext(PlayerContext);
 
   useEffect(() => {
-    albumsData.map((item) => {
+    albumsData.map((item: IAlbum) => {
       if (item._id === id) {
         setAlbumData(item);
       }
@@ -51,8 +53,8 @@ const DisplayAlbum = ({ albums }) => {
       </div>
       <hr />
       {songsData
-        .filter((item) => item.album === albums.name)
-        .map((item, idx) => (
+        .filter((item: ISong) => item.album === albums.name)
+        .map((item: ISong, idx: number) => (
           <div
             onClick={() => playWithId(item._id)}
             key={idx}

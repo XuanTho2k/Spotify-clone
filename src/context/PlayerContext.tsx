@@ -10,7 +10,7 @@ import axios from "axios";
 
 export const PlayerContext = createContext({});
 
-const PlayerContextProvider = (props) => {
+const PlayerContextProvider = (props: {}) => {
   const audioRef = useRef<HTMLAudioElement>();
   const seekBg = useRef();
   const seekBar = useRef();
