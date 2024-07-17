@@ -9,4 +9,8 @@ export default defineConfig({
     strictPort: true,
     port: 8000,
   },
+  define: {
+    "process.env": process.env,
+    VITE_BASE_URL: process.env.VITE_BASE_URL,
+  },
 });
