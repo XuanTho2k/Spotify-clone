@@ -16,10 +16,10 @@ const Player = () => {
     seekSong,
   } = useContext(PlayerContext);
 
-  return (
+  return track ? (
     <div className="h-[10%] bg-black flex justify-between items-center text-white px-4 ">
       <div className="hidden lg:flex items-center gap-4">
-        <img src={track.image} alt="" className="w-12" />
+        <img src={track?.image} alt="" className="w-12" />
         <div>
           <p>{track.name}</p>
           <p>{track.desc.slice(0, 12)}</p>
@@ -95,7 +95,7 @@ const Player = () => {
         </div>
       }
     </div>
-  );
+  ) : null;
 };
 
 export default Player;

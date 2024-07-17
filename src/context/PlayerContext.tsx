@@ -5,7 +5,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { songsData } from "../assets/frontend-assets/assets";
+import instance from "../config/axios";
+import axios from "axios";
 
 export const PlayerContext = createContext({});
 
@@ -14,7 +15,10 @@ const PlayerContextProvider = (props) => {
   const seekBg = useRef();
   const seekBar = useRef();
 
-  const [track, setTrack] = useState(songsData[1]);
+  const [songsData, setSongsData] = useState([]);
+  const [albumsData, setAlbumsData] = useState([]);
+
+  const [track, setTrack] = useState(songsData[0]);
   const [playStatus, setPlayStatus] = useState(false);
 
   const [time, setTime] = useState({
@@ -27,6 +31,78 @@ const PlayerContextProvider = (props) => {
       minute: 0,
     },
   });
+
+  // play the audio
+  const play = () => {
+    audioRef.current?.play();
+    setPlayStatus(true);
+  };
+
+  // pause the audio
+  const pause = () => {
+    audioRef.current?.pause();
+    setPlayStatus(false);
+  };
+
+  // play song by id
+  const playWithId = async (id: number) => {
+    await songsData.map((item) => {
+      if (id === item._id) {
+        setTrack(item);
+      }
+    });
+
+    await audioRef.current.play();
+    setPlayStatus(true);
+  };
+
+  // play previous song
+  const previous = async () => {
+    songsData.map(async (item, idx) => {
+      if (track._id === item._id && index > 0) {
+        await setTrack(songsData[index - 1]);
+        await audioRef.current.play();
+        setPlayStatus(true);
+      }
+    });
+  };
+
+  // play at a percent
+  const seekSong = async (e: SyntheticEvent) => {
+    audioRef.current!.currentTime =
+      (e.nativeEvent.offsetX / seekBg.current?.offsetWidth) *
+      audioRef.current!.duration;
+  };
+  // play next song
+  const next = async () => {
+    songsData.map(async (item, idx) => {
+      if (track._id === item._id && index < songsData.length) {
+        await setTrack(songsData[index + 1]);
+        await audioRef.current.play();
+        setPlayStatus(true);
+      }
+    });
+  };
+  // get songs data
+  const getSongsData = async () => {
+    try {
+      const response = await instance.get("/songs/list");
+      setSongsData(response.data.songs);
+      setTrack(response.data.songs[0]);
+    } catch (error) {}
+  };
+
+  //get album data
+  const getAlbumsData = async () => {
+    try {
+      const response = await instance.get("/albums/list");
+      setAlbumsData(response.data.albums);
+    } catch (error) {}
+  };
+  useEffect(() => {
+    getSongsData();
+    getAlbumsData();
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
@@ -48,48 +124,7 @@ const PlayerContextProvider = (props) => {
       };
     }, 1000);
   }, [audioRef]);
-  // play the audio
-  const play = () => {
-    audioRef.current?.play();
-    setPlayStatus(true);
-  };
 
-  // pause the audio
-  const pause = () => {
-    audioRef.current?.pause();
-    setPlayStatus(false);
-  };
-
-  // play song by id
-  const playWithId = async (id: number) => {
-    await setTrack(songsData[id]);
-    await audioRef.current?.play();
-    setPlayStatus(true);
-  };
-
-  // play previous song
-  const previous = async () => {
-    if (track.id > 0) {
-      await setTrack(songsData[track.id - 1]);
-      await audioRef.current?.play();
-      setPlayStatus(true);
-    }
-  };
-
-  // play at a percent
-  const seekSong = async (e: SyntheticEvent) => {
-    audioRef.current!.currentTime =
-      (e.nativeEvent.offsetX / seekBg.current?.offsetWidth) *
-      audioRef.current!.duration;
-  };
-  // play next song
-  const next = async () => {
-    if (track.id < songsData.length - 1) {
-      await setTrack(songsData[track.id + 1]);
-      await audioRef.current?.play();
-      setPlayStatus(true);
-    }
-  };
   const contextValue = {
     audioRef,
     seekBar,
@@ -106,6 +141,8 @@ const PlayerContextProvider = (props) => {
     previous,
     next,
     seekSong,
+    songsData,
+    albumsData,
   };
 
   return (

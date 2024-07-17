@@ -27,9 +27,14 @@ const Navbar = () => {
             Explore Premium
           </p>
           <p className="bg-black py-1 px-3 rounded-2xl">Install App</p>
-          <p className="bg-purple-500 text-black w-7 h-7 rounded-full flex items-center justify-center ">
+          <a
+            href={import.meta.env.VITE_ADMIN}
+            target="_blank"
+            rel="noreferrer"
+            className="bg-purple-500 text-black w-7 h-7 rounded-full flex items-center justify-center "
+          >
             D
-          </p>
+          </a>
         </div>
       </div>
       <div className="flex items-center gap-2 mt-4 ">
